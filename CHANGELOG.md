@@ -2,6 +2,17 @@
 
 All notable changes to the ComfyUI_Nano_Banana project will be documented in this file.
 
+## Unreleased
+### Added
+- Nano Banana 2 thinking controls
+  - Added `thinking_level` (`minimal` or `high`) and `include_thoughts` controls to Nano Banana 2 AIO and Nano Banana 2 Multi-Turn Chat nodes.
+  - Added `thought_images` outputs for returned intermediate thought images.
+  - Updated Nano Banana 2 default model to `gemini-3.1-flash-image` while keeping the preview identifier selectable.
+
+### Changed
+- Nano Banana 2 response parsing now separates thought text/images from final response text/images, preventing thought images from being mistaken for final output.
+- Nano Banana 2 AIO no longer replaces API text/grounding output with Vertex AI guidance text.
+
 ## [6.1.0] - Nano Banana 2 Support 2026-03-02
 ### Added
 - Nano Banana 2 AIO Node

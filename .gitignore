@@ -54,3 +54,5 @@ Thumbs.db
 
 # Dev
 .ignore/
+.agents/
+.codex/
