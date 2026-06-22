@@ -32,6 +32,7 @@ class NanoBanana2AIO:
                 "use_image_search": ("BOOLEAN", {"default": False}),
                 "thinking_level": (["minimal", "high"], {"default": "minimal"}),
                 "include_thoughts": ("BOOLEAN", {"default": False}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647, "control_after_generate": True}),
             },
             "optional": {
                 "image_1": ("IMAGE",), "image_2": ("IMAGE",), "image_3": ("IMAGE",),
@@ -51,7 +52,7 @@ class NanoBanana2AIO:
     FUNCTION = "generate_unified"
     CATEGORY = "Ru4ls/NanoBanana"
 
-    def _create_config(self, aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts):
+    def _create_config(self, aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts, seed):
         """Centralized config creation with proper AFC handling and Image Search support."""
         if "preview" in model_name and not self._preview_warning_shown:
             print(f"Warning: Using preview model {model_name} which may have unstable tool support")
@@ -68,6 +69,7 @@ class NanoBanana2AIO:
             "response_modalities": ["TEXT", "IMAGE"],
             "image_config": types.ImageConfig(**image_config_kwargs),
             "temperature": temperature,
+            "seed": seed,
             "thinking_config": types.ThinkingConfig(
                 thinking_level=thinking_level,
                 include_thoughts=include_thoughts,
@@ -151,7 +153,7 @@ class NanoBanana2AIO:
         return torch.zeros(1, 64, 64, 3)
 
     def generate_unified(self, model_name, prompt, image_count=1, use_search=True, use_image_search=False, 
-                         thinking_level="minimal", include_thoughts=False,
+                         thinking_level="minimal", include_thoughts=False, seed=0,
                          image_1=None, image_2=None, image_3=None, image_4=None, image_5=None, 
                          image_6=None, image_7=None, image_8=None, image_9=None, image_10=None,
                          image_11=None, image_12=None, image_13=None, image_14=None, 
@@ -168,6 +170,9 @@ class NanoBanana2AIO:
             valid_thinking_levels = ["minimal", "high"]
             if thinking_level not in valid_thinking_levels:
                 return self._handle_error(f"Invalid thinking level. Valid options: {', '.join(valid_thinking_levels)}")
+
+            if seed < 0 or seed > 2147483647:
+                return self._handle_error("Seed must be between 0 and 2147483647")
 
             if image_count < 1 or image_count > 10:
                 return self._handle_error("Image count must be between 1 and 10")
@@ -197,12 +202,12 @@ class NanoBanana2AIO:
             if image_count == 1:
                 return self._generate_single_image(
                     model_name, prompt, use_search, use_image_search, approach, contents,
-                    aspect_ratio, image_size, temperature, thinking_level, include_thoughts
+                    aspect_ratio, image_size, temperature, thinking_level, include_thoughts, seed
                 )
             else:
                 return self._generate_multiple_images(
                     model_name, prompt, image_count, use_search, use_image_search, approach, contents,
-                    aspect_ratio, image_size, temperature, thinking_level, include_thoughts
+                    aspect_ratio, image_size, temperature, thinking_level, include_thoughts, seed
                 )
 
         except ValueError as e:
@@ -212,7 +217,7 @@ class NanoBanana2AIO:
         except Exception as e:
             return self._handle_error(f"{type(e).__name__} in NanoBanana2AIO: {e}")
 
-    def _generate_single_image(self, model_name, prompt, use_search, use_image_search, approach, contents, aspect_ratio, image_size, temperature, thinking_level, include_thoughts):
+    def _generate_single_image(self, model_name, prompt, use_search, use_image_search, approach, contents, aspect_ratio, image_size, temperature, thinking_level, include_thoughts, seed):
         """Generate a single image with grounding capabilities."""
         if approach == "VERTEXAI":
             if not PROJECT_ID or not LOCATION:
@@ -226,7 +231,7 @@ class NanoBanana2AIO:
 
             client = genai.Client(api_key=GOOGLE_API_KEY)
 
-        config = self._create_config(aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts)
+        config = self._create_config(aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts, seed)
 
         response = client.models.generate_content(
             model=model_name,
@@ -268,7 +273,7 @@ class NanoBanana2AIO:
 
         return (image_tensor, thinking, grounding_sources, thought_images)
 
-    def _generate_multiple_images(self, model_name, prompt, image_count, use_search, use_image_search, approach, contents, aspect_ratio, image_size, temperature, thinking_level, include_thoughts):
+    def _generate_multiple_images(self, model_name, prompt, image_count, use_search, use_image_search, approach, contents, aspect_ratio, image_size, temperature, thinking_level, include_thoughts, seed):
         """Generate multiple images with grounding capabilities."""
         generated_images = []
         all_thinking_responses = []
@@ -291,7 +296,7 @@ class NanoBanana2AIO:
 
                 client = genai.Client(api_key=GOOGLE_API_KEY)
 
-            config = self._create_config(aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts)
+            config = self._create_config(aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts, seed)
 
             response = client.models.generate_content(
                 model=model_name,

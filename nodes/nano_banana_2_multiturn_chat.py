@@ -41,6 +41,7 @@ class NanoBanana2MultiTurnChat:
                 "use_image_search": ("BOOLEAN", {"default": False}),
                 "thinking_level": (["minimal", "high"], {"default": "minimal"}),
                 "include_thoughts": ("BOOLEAN", {"default": False}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647, "control_after_generate": True}),
                 "aspect_ratio": (["1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9", "Auto"], {"default": "1:1"}),
                 "image_size": (["512px", "1K", "2K", "4K"], {"default": "2K"}),
                 "temperature": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.1}),
@@ -64,7 +65,7 @@ class NanoBanana2MultiTurnChat:
         print(f"\033[91mERROR: {message}\033[0m")
         return (torch.zeros(1, 64, 64, 3), "", "", "", "", torch.zeros(1, 64, 64, 3))
 
-    def _create_config(self, aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts):
+    def _create_config(self, aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts, seed):
         """Centralized config creation with proper AFC handling and Image Search support."""
         if "preview" in model_name and not self._preview_warning_shown:
             print(f"Warning: Using preview model {model_name} which may have unstable tool support")
@@ -81,6 +82,7 @@ class NanoBanana2MultiTurnChat:
             "response_modalities": ["TEXT", "IMAGE"],
             "image_config": types.ImageConfig(**image_config_kwargs),
             "temperature": temperature,
+            "seed": seed,
             "thinking_config": types.ThinkingConfig(
                 thinking_level=thinking_level,
                 include_thoughts=include_thoughts,
@@ -172,7 +174,7 @@ class NanoBanana2MultiTurnChat:
         return client
 
     def generate_multiturn_image(self, model_name, prompt, reset_chat=False, use_search=False, use_image_search=False,
-                                  thinking_level="minimal", include_thoughts=False,
+                                  thinking_level="minimal", include_thoughts=False, seed=0,
                                   aspect_ratio="1:1", image_size="2K", temperature=1.0,
                                   image_1=None, image_2=None, image_3=None, image_4=None, image_5=None,
                                   image_6=None, image_7=None, image_8=None, image_9=None, image_10=None,
@@ -189,6 +191,9 @@ class NanoBanana2MultiTurnChat:
             valid_thinking_levels = ["minimal", "high"]
             if thinking_level not in valid_thinking_levels:
                 return self._handle_error(f"Invalid thinking level. Valid options: {', '.join(valid_thinking_levels)}")
+
+            if seed < 0 or seed > 2147483647:
+                return self._handle_error("Seed must be between 0 and 2147483647")
 
             # Validate aspect ratio
             valid_ratios = ["1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9", "Auto"]
@@ -235,7 +240,7 @@ class NanoBanana2MultiTurnChat:
                 contents.insert(0, prev_image)
 
             # Create config
-            config = self._create_config(aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts)
+            config = self._create_config(aspect_ratio, image_size, temperature, use_search, use_image_search, model_name, thinking_level, include_thoughts, seed)
 
             # Create the chat session
             chat = client.chats.create(

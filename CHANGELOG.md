@@ -8,6 +8,10 @@ All notable changes to the ComfyUI_Nano_Banana project will be documented in thi
   - Added `thinking_level` (`minimal` or `high`) and `include_thoughts` controls to Nano Banana 2 AIO and Nano Banana 2 Multi-Turn Chat nodes.
   - Added `thought_images` outputs for returned intermediate thought images.
   - Updated Nano Banana 2 default model to `gemini-3.1-flash-image` while keeping the preview identifier selectable.
+- Nano Banana 2 seed control
+  - Added a `seed` widget to Nano Banana 2 AIO and Nano Banana 2 Multi-Turn Chat nodes.
+  - Enabled ComfyUI fixed, increment, decrement, and randomize seed behavior through `control_after_generate`.
+  - Sends the selected seed in the Gemini generation config for both API and Vertex AI client paths.
 
 ### Changed
 - Nano Banana 2 response parsing now separates thought text/images from final response text/images, preventing thought images from being mistaken for final output.

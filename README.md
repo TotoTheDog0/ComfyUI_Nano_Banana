@@ -20,6 +20,7 @@ A dedicated node for the gemini-3.1-flash-image model with support for:
 - 512px (0.5K) resolution option
 - Google Image Search grounding alongside Web Search
 - Thinking level controls and optional returned thought text/images
+- Seed control with fixed, increment, decrement, and randomize modes
 
 **New Nano Banana 2 Multi-Turn Chat Node:**
 A conversational image generation and editing node with all Nano Banana 2 features:
@@ -213,6 +214,7 @@ A dedicated node for the **gemini-3.1-flash-image** model, optimized for speed a
 *   `use_image_search` (BOOLEAN): Toggle to enable Google Image Search grounding for visual reference accuracy (default: `False`). Enable `use_search` to use this feature.
 *   `thinking_level` (STRING): Thinking budget for Nano Banana 2. Options: `minimal`, `high` (default: `minimal`).
 *   `include_thoughts` (BOOLEAN): Whether returned thought text and thought images should be exposed in the node outputs (default: `False`).
+*   `seed` (INT): Generation seed sent to the Gemini generation config. Use ComfyUI's seed control to keep it fixed, increment, decrement, or randomize it after each generation. Seeds are best-effort reproducibility controls, not guaranteed deterministic outputs.
 *   `image_1` to `image_14` (IMAGE, optional): Up to fourteen reference images. Gemini 3.1 Flash supports up to 10 object images with high-fidelity and up to 4 character images for consistency.
 *   `aspect_ratio` (STRING): The output aspect ratio for the generated image. Options include: `1:1`, `1:4`, `1:8`, `2:3`, `3:2`, `3:4`, `4:1`, `4:3`, `4:5`, `5:4`, `8:1`, `9:16`, `16:9`, `21:9`, `Auto` (default: `1:1`). When set to `Auto`, the AI automatically determines the optimal aspect ratio.
 *   `image_size` (STRING): The output image quality/size. Options include: `512px`, `1K`, `2K`, `4K` (default: `2K`). The `512px` option is exclusive to Nano Banana 2.
@@ -258,6 +260,7 @@ A conversational image generation and editing node using the **gemini-3.1-flash-
 *   `use_image_search` (BOOLEAN): Toggle to enable Google Image Search grounding for visual reference accuracy (default: `False`). Enable `use_search` to use this feature.
 *   `thinking_level` (STRING): Thinking budget for Nano Banana 2. Options: `minimal`, `high` (default: `minimal`).
 *   `include_thoughts` (BOOLEAN): Whether returned thought text and thought images should be exposed in the node outputs (default: `False`).
+*   `seed` (INT): Generation seed sent to the Gemini generation config. Use ComfyUI's seed control to keep it fixed, increment, decrement, or randomize it after each generation. Seeds are best-effort reproducibility controls, not guaranteed deterministic outputs.
 *   `aspect_ratio` (STRING): The output aspect ratio for the generated image. Options include: `1:1`, `1:4`, `1:8`, `2:3`, `3:2`, `3:4`, `4:1`, `4:3`, `4:5`, `5:4`, `8:1`, `9:16`, `16:9`, `21:9`, `Auto` (default: `1:1`). When set to `Auto`, the AI automatically determines the optimal aspect ratio.
 *   `image_size` (STRING): The output image quality/size. Options include: `512px`, `1K`, `2K`, `4K` (default: `2K`). The `512px` option is exclusive to Nano Banana 2.
 *   `temperature` (FLOAT): Controls the creative randomness of the output. Higher values (e.g., 1.2) are more creative, lower values (e.g., 0.5) are more deterministic (default: 1.0).
